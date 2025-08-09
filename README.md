@@ -1,0 +1,2 @@
+# a simple tool for time series forecasting using deep learning model
+This is a simple tool for time series forecasting using deep learning model. It is written in Python and uses the pytorch library. The tool can be used for univariate time sereis data now.

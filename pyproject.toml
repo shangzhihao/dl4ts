@@ -1,0 +1,11 @@
+[project]
+name = "dl4ts"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.116.1",
+    "torch>=2.8.0",
+    "uvicorn>=0.35.0",
+]
