@@ -80,4 +80,63 @@ document.addEventListener("DOMContentLoaded", function () {
       };
       reader.readAsText(file);
     });
+
+  // Model select form toggling (with forms)
+  const modelSelect = document.getElementById("modelSelect");
+  const forms = {
+    MLP: document.getElementById("mlp-form"),
+    xLSTM: document.getElementById("xlstm-form"),
+    Transformer: document.getElementById("transformer-form"),
+  };
+
+  function showForm(model) {
+    Object.keys(forms).forEach((key) => {
+      forms[key].style.display = key === model ? "block" : "none";
+    });
+  }
+
+  // Initial display
+  showForm(modelSelect.value);
+
+  modelSelect.addEventListener("change", function () {
+    showForm(this.value);
+  });
+
+  document.getElementById("train-btn").addEventListener("click", function () {
+    const model = document.getElementById("modelSelect").value;
+    let data = { model };
+
+    if (model === "MLP") {
+      data.hidden_layers = document.getElementById("mlp-hidden-layers").value;
+      data.neurons = document.getElementById("neurons-in-layers").value;
+    } else if (model === "xLSTM") {
+      // Add xLSTM form data here if available
+    } else if (model === "Transformer") {
+      // Add Transformer form data here if available
+    }
+
+    // Get the selected file
+    const fileInput = document.getElementById("sampleFileInput");
+    const file = fileInput.files[0];
+
+    // Use FormData to send both JSON and file
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+    if (file) {
+      formData.append("file", file);
+    }
+
+    fetch("/train", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("Train result:", result);
+        // Handle result as needed
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  });
 });
