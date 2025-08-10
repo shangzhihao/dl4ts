@@ -109,6 +109,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (model === "MLP") {
       data.hidden_layers = document.getElementById("mlp-hidden-layers").value;
       data.neurons = document.getElementById("neurons-in-layers").value;
+      data.activation_function = document.getElementById("activation-function").value;
+      data.input_window = document.getElementById("input-window").value;
+      data.batch_size = document.getElementById("batch-size").value;
+      data.epochs = document.getElementById("epochs").value;
+      data.learning_rate = document.getElementById("learning-rate").value;
     } else if (model === "xLSTM") {
       // Add xLSTM form data here if available
     } else if (model === "Transformer") {
