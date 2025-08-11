@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 scratch.py
+.vscode
+docker/data

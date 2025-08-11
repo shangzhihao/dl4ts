@@ -21,11 +21,12 @@
     <div class="row">
       <!-- Left: Plots -->
       <div class="col-lg-9">
+        <div>Please load samples first.</div>
         <!-- Figure 1 -->
         <div class="card p-3 mb-4">
           <h5 class="mb-3">Samples</h5>
           <div class="chart-container">
-            <canvas style="width: 80%;" class="sample-line" id="chart1"></canvas>
+            <canvas class="sample-line" id="chart1"></canvas>
           </div>
         </div>
         <hr />
@@ -35,8 +36,7 @@
       <div class="col-lg-3">
         <div class="card p-3">
           <h5>Load samples</h5>
-          <input type="file" class="form-control w-100 mb-2" id="sampleFileInput" accept=".csv">
-
+          <input type="file" class="form-control w-100 mb-2" id="samples" accept=".csv">
           <h5>Model Parameters</h5>
           <select class="form-select mb-3" id="modelSelect">
             <option value="MLP" selected>MLP</option>
@@ -47,36 +47,36 @@
           <form id="mlp-form">
             <div class="mb-3">
               <label for="mlp-hidden-layers" class="form-label">number of hidden layers</label>
-              <input type="number" class="form-control" id="mlp-hidden-layers" value="1" min="1" max="10" step="1">
+              <input type="number" class="form-control" id="mlp-hidden-layers" value="3" min="1" max="10" step="1">
             </div>
             <div class="mb-3">
-              <label for="neurons-in-layers" class="form-label">number of neurons in each layers (split by ,)</label>
-              <input type="text" class="form-control" id="neurons-in-layers">
+              <label for="mlp-neurons" class="form-label">number of neurons in each layers (split by ,)</label>
+              <input type="text" class="form-control" id="mlp-neurons", value="16,32,16">
             </div>
             <div class="mb-3">
-              <label for="activation-function" class="form-label">activation function</label>
-              <select class="form-select" id="activation-function">
-                <option value="relu" selected>ReLU</option>
-                <option value="sigmoid">Sigmoid</option>
+              <label for="mlp-act-fun" class="form-label">activation function</label>
+              <select class="form-select" id="mlp-act-fun">
+                <option value="gelu" selected>GeLU</option>
+                <option value="swish">Swish</option>
+                <option value="relu">ReLU</option>
                 <option value="tanh">Tanh</option>
-                <option value="softmax">Softmax</option>
               </select>
             </div>
             <div class="mb-3">
-              <label for="input-window" class="form-label">input window</label>
-              <input type="number" class="form-control" id="input-window" value="10" min="1" max="100" step="1">
+              <label for="mlp-window" class="form-label">input window</label>
+              <input type="number" class="form-control" id="mlp-window" value="10" min="1" max="100" step="1">
             </div>
             <div class="mb-3">
-              <label for="batch-size" class="form-label">batch size</label>
-              <input type="number" class="form-control" id="batch-size" value="32" min="1" max="1024" step="1">
+              <label for="mlp-batch" class="form-label">batch size</label>
+              <input type="number" class="form-control" id="mlp-batch" value="32" min="1" max="1024" step="1">
             </div>
             <div class="mb-3">
-              <label for="epochs" class="form-label">epochs</label>
-              <input type="number" class="form-control" id="epochs" value="10" min="1" max="1000" step="1">
+              <label for="mlp-epochs" class="form-label">epochs</label>
+              <input type="number" class="form-control" id="mlp-epochs" value="10" min="1" max="1000" step="1">
             </div>
             <div class="mb-3">
-              <label for="learning-rate" class="form-label">learning rate</label>
-              <input type="number" class="form-control" id="learning-rate" value="0.001" min="0.00001" max="1" step="0.0001">
+              <label for="mlp-lr" class="form-label">learning rate</label>
+              <input type="number" class="form-control" id="mlp-lr" value="0.001" min="0.00001" max="1" step="0.0001">
             </div>
           </form>
           <form id="xlstm-form" style="display: none;">

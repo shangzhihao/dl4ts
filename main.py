@@ -3,9 +3,11 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
 import docker
 from pathlib import Path
-
+import json
+import uuid
 
 volume_path = Path(__file__).parent / "docker"
+data_path = volume_path / "data"
 docker_working_path = "/tl4ds"
 
 app = FastAPI()
@@ -20,39 +22,25 @@ async def favicon():
 
 @app.post("/train")
 async def train(data: str = Form(...), file: UploadFile = File(None)):
-    import json
-
     data_dict = json.loads(data)
-    model = data_dict.get("model")
-    result = {}
+    result = data_dict.copy()
+    job_id = str(uuid.uuid4())
+    # create a unique job path
+    job_path = data_path / job_id
+    job_path.mkdir(parents=True, exist_ok=False)
+    # Save uploaded file directly to job_path
+    if file is not None:
+        file_path = job_path / "samples.csv"
+        with open(file_path, "wb") as f:
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                f.write(chunk)
+        result["file"] = str(file_path)
 
-    if model == "MLP":
-        hidden_layers = data_dict.get("hidden_layers")
-        neurons = data_dict.get("neurons")
-        activation_function = data_dict.get("activation_function")
-        input_window = data_dict.get("input_window")
-        batch_size = data_dict.get("batch_size")
-        epochs = data_dict.get("epochs")
-        learning_rate = data_dict.get("learning_rate")
-    elif model == "xLSTM":
-        # Handle xLSTM parameters
-        pass
-    elif model == "Transformer":
-        # Handle Transformer parameters
-        pass
-
-    # Handle uploaded file
-    if file:
-        file_content = await file.read()
-        result["file_name"] = file.filename
-        result["file_size"] = len(file_content)
-
-    # Prepare environment variables for Docker
-    env_vars = {"MODEL": model, "WDIR": docker_working_path}
-    for k, v in data_dict.items():
-        if v is not None:
-            env_vars[k.upper()] = str(v)
-
+    result["work_dir"] = docker_working_path
+    result["job_id"] = job_id
     client = docker.from_env()
     container = client.containers.create(
         "ubuntu:latest",
@@ -60,8 +48,9 @@ async def train(data: str = Form(...), file: UploadFile = File(None)):
         detach=True,
         auto_remove=False,
         volumes={str(volume_path): {"bind": docker_working_path, "mode": "rw"}},
-        environment=env_vars,
+        environment=result,
     )
-    result["job_id"] = container.id
+    result["cid"] = container.id
+    result["job_id"] = job_id
     container.start()
     return JSONResponse(result)

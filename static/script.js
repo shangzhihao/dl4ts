@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Chart.js setup for chart1
-  const ctx1 = document.getElementById("chart1").getContext("2d");
+  const chart1Canvas = document.getElementById("chart1");
+  const ctx1 = chart1Canvas.getContext("2d");
 
   // Create empty charts
   const chart1 = new Chart(ctx1, {
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // File picker event
   document
-    .getElementById("sampleFileInput")
+    .getElementById("samples")
     .addEventListener("change", function (event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -79,13 +80,13 @@ document.addEventListener("DOMContentLoaded", function () {
     let data = { model };
 
     if (model === "MLP") {
-      data.hidden_layers = document.getElementById("mlp-hidden-layers").value;
-      data.neurons = document.getElementById("neurons-in-layers").value;
-      data.activation_function = document.getElementById("activation-function").value;
-      data.input_window = document.getElementById("input-window").value;
-      data.batch_size = document.getElementById("batch-size").value;
-      data.epochs = document.getElementById("epochs").value;
-      data.learning_rate = document.getElementById("learning-rate").value;
+      data.mlp_hidden_layers = document.getElementById("mlp-hidden-layers").value;
+      data.mlp_neurons = document.getElementById("mlp-neurons").value;
+      data.mlp_act_fun = document.getElementById("mlp-act-fun").value;
+      data.mlp_window = document.getElementById("mlp-window").value;
+      data.mlp_batch = document.getElementById("mlp-batch").value;
+      data.mlp_epochs = document.getElementById("mlp-epochs").value;
+      data.mlp_lr = document.getElementById("mlp-lr").value;
     } else if (model === "xLSTM") {
       // Add xLSTM form data here if available
     } else if (model === "Transformer") {
@@ -93,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Get the selected file
-    const fileInput = document.getElementById("sampleFileInput");
+    const fileInput = document.getElementById("samples");
     const file = fileInput.files[0];
 
     // Use FormData to send both JSON and file
