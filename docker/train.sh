@@ -1,9 +1,10 @@
 
 apt-get update
-apt-get install -y python3 python3-pip
+apt-get install -y python3-venv
+python3 -m venv venv
+. venv/bin/activate
 
 cd $work_dir
-pip3 install -r requirements.txt
-
+pip install -r requirements.txt
 python3 trainer.py
 

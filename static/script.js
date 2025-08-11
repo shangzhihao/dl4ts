@@ -80,7 +80,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let data = { model };
 
     if (model === "MLP") {
-      data.mlp_hidden_layers = document.getElementById("mlp-hidden-layers").value;
       data.mlp_neurons = document.getElementById("mlp-neurons").value;
       data.mlp_act_fun = document.getElementById("mlp-act-fun").value;
       data.mlp_window = document.getElementById("mlp-window").value;

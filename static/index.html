@@ -46,18 +46,14 @@
 
           <form id="mlp-form">
             <div class="mb-3">
-              <label for="mlp-hidden-layers" class="form-label">number of hidden layers</label>
-              <input type="number" class="form-control" id="mlp-hidden-layers" value="3" min="1" max="10" step="1">
-            </div>
-            <div class="mb-3">
-              <label for="mlp-neurons" class="form-label">number of neurons in each layers (split by ,)</label>
+              <label for="mlp-neurons" class="form-label">number of neurons in hidden layers (split by ,)</label>
               <input type="text" class="form-control" id="mlp-neurons", value="16,32,16">
             </div>
             <div class="mb-3">
               <label for="mlp-act-fun" class="form-label">activation function</label>
               <select class="form-select" id="mlp-act-fun">
                 <option value="gelu" selected>GeLU</option>
-                <option value="swish">Swish</option>
+                <option value="silu">SiLU</option>
                 <option value="relu">ReLU</option>
                 <option value="tanh">Tanh</option>
               </select>
