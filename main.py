@@ -9,7 +9,7 @@ import uuid
 volume_path = Path(__file__).parent / "docker"
 data_path = volume_path / "data"
 docker_working_path = "/tl4ds"
-
+docker_image = "shangzhihao/dl4ts:latest"
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -43,7 +43,7 @@ async def train(data: str = Form(...), file: UploadFile = File(None)):
     result["job_id"] = job_id
     client = docker.from_env()
     container = client.containers.create(
-        "ubuntu:latest",
+        docker_image,
         command=["sh", f"{docker_working_path}/train.sh"],
         detach=True,
         auto_remove=False,
