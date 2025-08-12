@@ -9,7 +9,7 @@ import uuid
 volume_path = Path(__file__).parent / "docker"
 data_path = volume_path / "data"
 docker_working_path = "/tl4ds"
-docker_image = "shangzhihao/dl4ts:latest"
+docker_image = "dl4ts:dev"
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
