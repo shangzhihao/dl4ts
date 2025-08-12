@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const floatArray = text
           .split("\n")
           .map((line) => line.trim())
+          .map((line) => line.split(",")[0])
           .filter((line) => line.length > 0)
           .map(Number)
           .filter((num) => !isNaN(num));
