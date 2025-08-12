@@ -1,8 +1,6 @@
-import csv
 import os
 from MLP import train_mlp
 from pathlib import Path
-
 data_path = Path(__file__).parent / "data"
 
 def get_container_id():
