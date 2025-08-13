@@ -19,7 +19,9 @@ str2act = {
 class MLP(nn.Module):
     def __init__(self, window, hidden_dims, act_str):
         super(MLP, self).__init__()
-        dims = [window, ]
+        dims = [
+            window,
+        ]
         dims.extend(hidden_dims)
         dims.append(1)
         act_fun = str2act.get(act_str, nn.GELU)
@@ -43,8 +45,12 @@ def train_mlp(job_path, window, hidden_dims, act_str, batch_size, epochs, lr):
     # Create datasets
     train_dataset = TSDataset(train_list, window)
     val_dataset = TSDataset(val_list, window)
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True
+    )
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset, batch_size=batch_size, shuffle=False
+    )
 
     # Create model
     model = MLP(window, hidden_dims, act_str)
@@ -89,18 +95,18 @@ def train_mlp(job_path, window, hidden_dims, act_str, batch_size, epochs, lr):
             mlflow.log_metric("train_loss", avg_loss, step=epoch)
             mlflow.log_metric("val_loss", avg_val_loss, step=epoch)
             mlflow.log_metric("progress", epoch, step=epoch)
-            print(f"Epoch {epoch+1}/{epochs}, Train Loss: {avg_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+            print(
+                f"Epoch {epoch+1}/{epochs}, Train Loss: {avg_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
+            )
 
         # Log model
         sig = ModelSignature(
             inputs=Schema([TensorSpec(np.dtype("float32"), (-1, window))]),
-            outputs=Schema([TensorSpec(np.dtype("float32"), (-1, 1))]))
+            outputs=Schema([TensorSpec(np.dtype("float32"), (-1, 1))]),
+        )
         input_np = np.random.rand(1, window)
         mlflow.pytorch.log_model(
-        pytorch_model=model,
-        name="model",
-        input_example=input_np,
-        signature=sig)
+            pytorch_model=model, name="model", input_example=input_np, signature=sig
+        )
         # Save trained model in job_path
         torch.save(model.state_dict(), str(job_path / "mlp_model_state.pt"))
-

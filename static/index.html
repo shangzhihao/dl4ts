@@ -25,7 +25,15 @@
         <div class="card p-3 mb-4">
           <h5 class="mb-3">Samples</h5>
           <div class="chart-container">
-            <canvas class="sample-line" id="chart1"></canvas>
+            <canvas class="sample-line" id="sample-chart"></canvas>
+          </div>
+          <h5 class="mb-3">Train loss</h5>
+          <div class="chart-container">
+            <canvas class="sample-line" id="train-loss-chart"></canvas>
+          </div>
+          <h5 class="mb-3">Validation loss</h5>
+          <div class="chart-container">
+            <canvas class="sample-line" id="val-loss-chart"></canvas>
           </div>
         </div>
         <hr />
@@ -86,9 +94,9 @@
     </div>
     <!-- Footer -->
     <hr>
-    <div class="text-center text-muted">
-      <small>Built with pytorch</small>
-    </div>
+<div class="text-center text-muted">
+  <small>Built by <a href="https://github.com/shangzhihao/" style="text-decoration: none; color:rgba(33, 37, 41, 0.75);">Shang Zhihao</a></small>
+</div>
   </div>
 
   <!-- Bootstrap JS Bundle (includes Popper) -->

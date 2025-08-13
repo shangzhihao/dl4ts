@@ -1,10 +1,6 @@
-document.addEventListener("DOMContentLoaded", function () {
-  // Chart.js setup for chart1
-  const chart1Canvas = document.getElementById("chart1");
-  const ctx1 = chart1Canvas.getContext("2d");
-
-  // Create empty charts
-  const chart1 = new Chart(ctx1, {
+let sampleChart, trainChart, valChart;
+function makeChart(ctx) { 
+  return new Chart(ctx, {
     type: "line",
     data: {
       labels: [],
@@ -16,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
           backgroundColor: "rgba(75,192,192,0.2)",
           fill: false,
           tension: 0.1,
+          pointRadius: 0
         },
       ],
     },
@@ -26,14 +23,28 @@ document.addEventListener("DOMContentLoaded", function () {
       scales:{x:{grid:{display:false}},y:{grid:{display:false}}},
     },
   });
+}
 
+
+document.addEventListener("DOMContentLoaded", function () {
+  // create a chart for the sample data
+  const sampleCanvas= document.getElementById("sample-chart");
+  const sampleCtx = sampleCanvas.getContext("2d");
+  sampleChart = makeChart(sampleCtx);
+
+  const trainCanvas= document.getElementById("train-loss-chart");
+  const trainCtx = trainCanvas.getContext("2d");
+  trainChart = makeChart(trainCtx);
+  
+  const valCanvas= document.getElementById("val-loss-chart");
+  const valCtx = valCanvas.getContext("2d");
+  valChart = makeChart(valCtx);
   // File picker event
   document
     .getElementById("samples")
     .addEventListener("change", function (event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function (e) {
         const text = e.target.result;
@@ -47,10 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update chart with the floatArray
         const labels = floatArray.map((_, i) => i + 1);
-
-        chart1.data.labels = labels;
-        chart1.data.datasets[0].data = floatArray;
-        chart1.update();
+        sampleChart.data.labels = labels;
+        sampleChart.data.datasets[0].data = floatArray;
+        sampleChart.update();
       };
       reader.readAsText(file);
     });
@@ -111,10 +121,55 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((result) => {
         console.log("Train result:", result);
-        // Handle result as needed
+        trackJob(result.job_id);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
   });
 });
+
+function trackJob(jobId) {
+    const intervalId = setInterval(() => {
+        fetch(`/status/${jobId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Job tracking result:', data);
+                train_loss = data.train_loss || [];
+                val_loss = data.val_loss || [];
+                // update trainChart with train_loss data
+                if (train_loss.length > 0) {
+                    const trainLabels = train_loss.map((_, i) => i + 1);
+                    trainChart.data.labels = trainLabels;
+                    trainChart.data.datasets[0].data = train_loss;
+                    trainChart.data.datasets[0].label = "Train Loss";
+                    trainChart.update();
+                }
+                
+                // Update valChart with val_loss data
+                if (val_loss.length > 0) {
+                    const valLabels = val_loss.map((_, i) => i + 1);
+                    valChart.data.labels = valLabels;
+                    valChart.data.datasets[0].data = val_loss;
+                    valChart.data.datasets[0].label = "Validation Loss";
+                    valChart.update();
+                }
+                if(data.progress.length == parseInt(data.epochs, 10)){
+                  clearInterval(intervalId);
+                  console.log(`Job ${jobId} completed.`);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching job status:', error);
+                clearInterval(intervalId);
+            });
+    }, 5000);
+    
+    console.log(`Started tracking job ${jobId} every 5 seconds`);
+    return intervalId;
+}

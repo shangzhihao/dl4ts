@@ -19,9 +19,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", include_in_schema=False)
 @app.get("/index.html", include_in_schema=False)
-async def favicon():
+async def index():
     return FileResponse("static/index.html")
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("static/favicon.ico")
 
 @app.post("/train")
 async def train(data: str = Form(...), file: UploadFile = File(None)):
@@ -75,9 +78,12 @@ async def status(job_id: str):
     if not runs:
         return JSONResponse({"error": "No runs found for the experiment"}, status_code=404)
     run = runs[0]
+    train_loss = client.get_metric_history(run.info.run_id, "train_loss")
+    val_loss = client.get_metric_history(run.info.run_id, "val_loss")
+    progress = client.get_metric_history(run.info.run_id, "progress")
     result = {
         "epochs": run.data.params.get("epochs", "N/A"),
-        "progress": run.data.metrics.get("progress", 0),
-        "train_loss": run.data.metrics.get("train_loss", "N/A"),
-        "val_loss": run.data.metrics.get("val_loss", "N/A")}
+        "progress": [m.value for m in progress][:-1],
+        "train_loss": [m.value for m in train_loss][:-1],
+        "val_loss": [m.value for m in val_loss][:-1],}
     return JSONResponse(result)
