@@ -50,6 +50,7 @@ def train_mlp(job_path, window, hidden_dims, act_str, batch_size, epochs, lr):
     model = MLP(window, hidden_dims, act_str)
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    # TODO: do not use hardcoded path
     # Set up MLflow
     mlflow_path = job_path / "mlflow_runs"
     os.makedirs(mlflow_path, exist_ok=True)
@@ -87,6 +88,7 @@ def train_mlp(job_path, window, hidden_dims, act_str, batch_size, epochs, lr):
             avg_val_loss = val_loss / len(val_loader.dataset)
             mlflow.log_metric("train_loss", avg_loss, step=epoch)
             mlflow.log_metric("val_loss", avg_val_loss, step=epoch)
+            mlflow.log_metric("progress", epoch, step=epoch)
             print(f"Epoch {epoch+1}/{epochs}, Train Loss: {avg_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
 
         # Log model

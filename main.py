@@ -1,3 +1,5 @@
+from http import client
+from unittest import result
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
@@ -5,6 +7,7 @@ import docker
 from pathlib import Path
 import json
 import uuid
+import mlflow
 
 volume_path = Path(__file__).parent / "docker"
 data_path = volume_path / "data"
@@ -53,4 +56,28 @@ async def train(data: str = Form(...), file: UploadFile = File(None)):
     result["cid"] = container.id
     result["job_id"] = job_id
     container.start()
+    return JSONResponse(result)
+
+
+@app.get("/status/{job_id}")
+async def status(job_id: str):
+    # TODO: do not use hardcoded
+    mlflow_path = data_path / job_id / "mlflow_runs"
+    uri = f"file://{mlflow_path}"
+    mlflow.set_tracking_uri(uri)
+    client = mlflow.MlflowClient(tracking_uri=uri)
+    # TODO: do not use hardcoded
+    exp_name = "dl4ts"
+    exp = client.get_experiment_by_name(exp_name)
+    if not exp:
+        return JSONResponse({"error": "Experiment not found"}, status_code=404)
+    runs = client.search_runs(experiment_ids=[exp.experiment_id])
+    if not runs:
+        return JSONResponse({"error": "No runs found for the experiment"}, status_code=404)
+    run = runs[0]
+    result = {
+        "epochs": run.data.params.get("epochs", "N/A"),
+        "progress": run.data.metrics.get("progress", 0),
+        "train_loss": run.data.metrics.get("train_loss", "N/A"),
+        "val_loss": run.data.metrics.get("val_loss", "N/A")}
     return JSONResponse(result)
