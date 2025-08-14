@@ -22,9 +22,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def index():
     return FileResponse("static/index.html")
 
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return FileResponse("static/favicon.ico")
 
 @app.post("/train")
 async def train(data: str = Form(...), file: UploadFile = File(None)):
