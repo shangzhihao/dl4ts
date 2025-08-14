@@ -142,6 +142,8 @@ function trackJob(jobId) {
                 console.log('Job tracking result:', data);
                 train_loss = data.train_loss || [];
                 val_loss = data.val_loss || [];
+                progress = data.progress || [];
+                epochs = parseInt(data.epochs, 10);
                 // update trainChart with train_loss data
                 if (train_loss.length > 0) {
                     const trainLabels = train_loss.map((_, i) => i + 1);
@@ -159,9 +161,17 @@ function trackJob(jobId) {
                     valChart.data.datasets[0].label = "Validation Loss";
                     valChart.update();
                 }
-                if(data.progress.length == parseInt(data.epochs, 10)){
-                  clearInterval(intervalId);
-                  console.log(`Job ${jobId} completed.`);
+                
+                const pbar = document.getElementById("train-progress");
+                pbar.style.display = "block";
+                if(progress.length > 0){
+                  const last = progress.length-1;
+                  cur_epoch = progress[last] + 1
+                  pbar.value = cur_epoch / epochs * 100;
+                  if(cur_epoch == epochs){
+                    clearInterval(intervalId);
+                    console.log(`Job ${jobId} completed.`);
+                  }
                 }
             })
             .catch(error => {
