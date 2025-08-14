@@ -1,6 +1,10 @@
 <div class="mb-3">
-    <label for="lstm-neurons" class="form-label">number of neurons in hidden layers (split by ,)</label>
-    <input type="text" class="form-control" id="lstm-neurons" , value="16,32,16">
+    <label for="lstm-layers" class="form-label">number of layers</label>
+    <input type="number" class="form-control" id="lstm-layers" value="4" min="1" step="1">
+</div>
+<div class="mb-3">
+    <label for="lstm-drop" class="form-label">dropout</label>
+    <input type="number" class="form-control" id="lstm-drop" value="0.1" min="0" max="1" step="0.1">
 </div>
 <div class="mb-3">
     <label for="lstm-window" class="form-label">input window</label>
@@ -11,10 +15,33 @@
     <input type="number" class="form-control" id="lstm-batch" value="32" min="1" max="1024" step="1">
 </div>
 <div class="mb-3">
-    <label for="lsmt-epochs" class="form-label">epochs</label>
-    <input type="number" class="lstm-control" id="mlp-epochs" value="10" min="1" max="1000" step="1">
+    <label for="lstm-epochs" class="form-label">epochs</label>
+    <input type="number" class="form-control" id="lstm-epochs" value="10" min="1" max="1000" step="1">
 </div>
 <div class="mb-3">
     <label for="lstm-lr" class="form-label">learning rate</label>
     <input type="number" class="form-control" id="lstm-lr" value="0.001" min="0.00001" max="1" step="0.0001">
+</div>
+<div class="mb-3">
+    <label for="lstm-opt" class="form-label">activation function</label>
+    <select class="form-select" id="lstm-opt">
+        <option value="adam" selected>Adam</option>
+        <option value="adamw">AdamW</option>
+        <option value="rmsprop">RMSprop</option>
+    </select>
+</div>
+<div class="mb-3">
+    <div class="form-label">Auto hyper-parameters</div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="lstm-auto" id="lstm-auto-yes" value="true" checked>
+        <label class="form-check-label" for="lstm-auto-yes">
+            Yes
+        </label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="lstm-auto" id="lstm-auto-no" value="false">
+        <label class="form-check-label" for="lstm-auto-no">
+            No
+        </label>
+    </div>
 </div>

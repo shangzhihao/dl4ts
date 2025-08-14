@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const modelSelect = document.getElementById("modelSelect");
   const forms = {
     MLP: document.getElementById("mlp-form"),
+    LSTM: document.getElementById("lstm-form"),
     xLSTM: document.getElementById("xlstm-form"),
     Transformer: document.getElementById("transformer-form"),
   };
@@ -97,10 +98,11 @@ document.addEventListener("DOMContentLoaded", function () {
       data.mlp_batch = document.getElementById("mlp-batch").value;
       data.mlp_epochs = document.getElementById("mlp-epochs").value;
       data.mlp_lr = document.getElementById("mlp-lr").value;
+      const autoRadio = document.querySelector('input[name="mlp-auto"]:checked');
+      data.mlp_auto = autoRadio ? autoRadio.value === "true" : false;
+    } else if (model === "LSTM") {
     } else if (model === "xLSTM") {
-      // Add xLSTM form data here if available
     } else if (model === "Transformer") {
-      // Add Transformer form data here if available
     }
 
     // Get the selected file

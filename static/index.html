@@ -28,15 +28,15 @@
         <div class="card p-3 mb-4">
           <h5 class="mb-3">Samples</h5>
           <div class="chart-container">
-            <canvas class="sample-line" id="sample-chart"></canvas>
+            <canvas class="line-chart" id="sample-chart"></canvas>
           </div>
           <h5 class="mb-3">Train loss</h5>
           <div class="chart-container">
-            <canvas class="sample-line" id="train-loss-chart"></canvas>
+            <canvas class="line-chart" id="train-loss-chart"></canvas>
           </div>
           <h5 class="mb-3">Validation loss</h5>
           <div class="chart-container">
-            <canvas class="sample-line" id="val-loss-chart"></canvas>
+            <canvas class="line-chart" id="val-loss-chart"></canvas>
           </div>
         </div>
         <hr />
@@ -50,16 +50,17 @@
           <h5>Model Parameters</h5>
           <select class="form-select mb-3" id="modelSelect">
             <option value="MLP" selected>MLP</option>
+            <option value="LSTM">LSTM</option>
             <option value="xLSTM">xLSTM</option>
             <option value="Transformer">Transformer</option>
           </select>
           <form id="mlp-form">
           </form>
+          <form id="lstm-form" style="display: none;">
+          </form>
           <form id="xlstm-form" style="display: none;">
-            xlstm parameters
           </form>
           <form id="transformer-form" style="display: none;">
-            transformer parameters
           </form>
           <script src="/static/script/form.js"></script>
           <button id="train-btn" class="btn btn-primary w-100">train</button>

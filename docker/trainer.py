@@ -20,6 +20,7 @@ def train():
         batch_size = int(envs["mlp_batch"])
         epochs = int(envs["mlp_epochs"])
         lr = float(envs["mlp_lr"])
+        automl = envs.get("mlp_auto", "True").lower() == "true"
         train_mlp(job_path, window, hidden_dims, act_str, batch_size, epochs, lr)
 
 if __name__ == "__main__":
