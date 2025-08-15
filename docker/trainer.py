@@ -12,6 +12,9 @@ from mlflow.types.schema import Schema, TensorSpec
 from config import TrainConfig, MLPConfig
 from models import MLP
 from tsdata import TSDataset
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 str2act = {
@@ -20,7 +23,12 @@ str2act = {
     "tanh": nn.Tanh,
     "silu": nn.SiLU,
 }
-
+str2opt = {
+    "sgd": torch.optim.SGD,
+    "adam": torch.optim.Adam,
+    "adamw": torch.optim.AdamW,
+    "rmsprop": torch.optim.RMSprop,
+}
 
 data_path = Path(__file__).parent / "data"
 envs = dict(os.environ)
@@ -51,12 +59,14 @@ def get_train_conf()->TrainConfig:
     batch_size = int(envs["batch"])
     epochs = int(envs["epochs"])
     lr = float(envs["lr"])
+    optim = str2opt.get(envs["opt"], torch.optim.Adam)
     automl = envs.get("auto", "True").lower() == "true"
     train_params = {
         "job_path": job_path,
         "batch_size": batch_size,
         "epochs": epochs,
         "lr": lr,
+        "optim": optim,
         "automl": automl,
     }
     return TrainConfig(**train_params) # type: ignore
@@ -91,7 +101,7 @@ def train():
         train_conf.job_path, window, train_conf.batch_size
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=train_conf.lr)
+    optimizer = train_conf.optim(model.parameters(), lr=train_conf.lr)
     job_path = train_conf.job_path
     mlflow_path = job_path / envs["mlflow_dir"]
     os.makedirs(mlflow_path, exist_ok=True)
@@ -101,6 +111,8 @@ def train():
         mlflow.log_params(asdict(model_conf))
         mlflow.log_params(asdict(train_conf))
         epochs = train_conf.epochs
+        len_train = len(train_loader.dataset)  # type: ignore
+        len_val = len(val_loader.dataset)  # type: ignore
         for epoch in range(epochs):
             model.train()
             total_loss = 0
@@ -111,7 +123,7 @@ def train():
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item() * xb.size(0)
-            avg_loss = total_loss / len(train_loader.dataset) # type: ignore
+            avg_loss = total_loss / len_train
 
             # Validation
             model.eval()
@@ -121,12 +133,12 @@ def train():
                     pred = model(xb)
                     loss = criterion(pred, yb.unsqueeze(1))
                     val_loss += loss.item() * xb.size(0)
-            avg_val_loss = val_loss / len(val_loader.dataset) # type: ignore
+            avg_val_loss = val_loss / len_val
             mlflow.log_metric("train_loss", avg_loss, step=epoch)
             mlflow.log_metric("val_loss", avg_val_loss, step=epoch)
             mlflow.log_metric("progress", epoch, step=epoch)
-            print(
-                f"Epoch {epoch+1}/{epochs}, Train Loss: {avg_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
+            logger.info(
+                f"Epoch {epoch+1}/{epochs},Train Loss: {avg_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
             )
         sig = ModelSignature(
             inputs=Schema([TensorSpec(np.dtype("float32"), (-1, window))]),

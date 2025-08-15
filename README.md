@@ -7,6 +7,7 @@ The data format should be as follows: two columns in a csv file, the first colum
 - It does not support GPU training yet.
 - This is a FastAPI based web app. You can run it with the following command:
 ``` bash
-uvicorn main:app --reload
+uvicorn main:app
 ```
+
 ![alt text](ui.png)
