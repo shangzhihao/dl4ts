@@ -33,7 +33,7 @@ def get_container_id() -> str:
 def get_dataloader(
     job_path: Path, window: int, batch_size: int
 ) -> tuple[DataLoader, DataLoader]:
-    df = pd.read_csv(job_path / "samples.csv")
+    df = pd.read_csv(job_path / envs["sample_file"])
     train_list = df.iloc[:, 0].dropna().tolist()
     val_list = df.iloc[:, 1].dropna().tolist()
 
@@ -62,7 +62,7 @@ def get_train_conf()->TrainConfig:
     return TrainConfig(**train_params) # type: ignore
 
 
-def get_mlp_conf():
+def get_mlp_conf()-> MLPConfig:
     window = int(envs["mlp_window"])
     hidden_dims = list(map(int, envs["mlp_neurons"].split(",")))
     act_str = envs["mlp_act_fun"]
@@ -93,10 +93,10 @@ def train():
 
     optimizer = torch.optim.Adam(model.parameters(), lr=train_conf.lr)
     job_path = train_conf.job_path
-    mlflow_path = job_path / "mlflow_runs"
+    mlflow_path = job_path / envs["mlflow_dir"]
     os.makedirs(mlflow_path, exist_ok=True)
     mlflow.set_tracking_uri(f"file://{mlflow_path.resolve()}")
-    mlflow.set_experiment("dl4ts")
+    mlflow.set_experiment(envs["mlflow_exp_name"])
     with mlflow.start_run():
         mlflow.log_params(asdict(model_conf))
         mlflow.log_params(asdict(train_conf))
@@ -137,7 +137,7 @@ def train():
             pytorch_model=model, name="model", input_example=input_np, signature=sig
         )
         # Save trained model in job_path
-        torch.save(model.state_dict(), str(job_path / "mlp_model_state.pt"))
+        torch.save(model.state_dict(), str(job_path / envs["model_state_file"]))
 
 
 if __name__ == "__main__":

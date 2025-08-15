@@ -95,11 +95,13 @@ document.addEventListener("DOMContentLoaded", function () {
       data.mlp_neurons = document.getElementById("mlp-neurons").value;
       data.mlp_act_fun = document.getElementById("mlp-act-fun").value;
       data.mlp_window = document.getElementById("mlp-window").value;
-      data.mlp_batch = document.getElementById("mlp-batch").value;
-      data.mlp_epochs = document.getElementById("mlp-epochs").value;
-      data.mlp_lr = document.getElementById("mlp-lr").value;
-      const autoRadio = document.querySelector('input[name="mlp-auto"]:checked');
-      data.mlp_auto = autoRadio ? autoRadio.value === "true" : false;
+
+      data.batch = document.getElementById("batch").value;
+      data.epochs = document.getElementById("epochs").value;
+      data.lr = document.getElementById("lr").value;
+      data.opt = document.getElementById("opt").value;
+      const autoRadio = document.querySelector('input[name="auto"]:checked');
+      data.auto = autoRadio ? autoRadio.value === "true" : false;
     } else if (model === "LSTM") {
     } else if (model === "xLSTM") {
     } else if (model === "Transformer") {
