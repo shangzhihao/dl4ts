@@ -14,3 +14,4 @@ fetchForm("MLP", "mlp-form");
 fetchForm("LSTM", "lstm-form");
 fetchForm("xLSTM", "xlstm-form");
 fetchForm("Transformer", "transformer-form");
+fetchForm("Trainer", "trainer");

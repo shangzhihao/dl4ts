@@ -1,0 +1,36 @@
+<h5>Training Parameters</h5>
+<div class="mb-3">
+    <label for="batch" class="form-label">batch size</label>
+    <input type="number" class="form-control" id="batch" value="32" min="1" max="1024" step="1">
+</div>
+<div class="mb-3">
+    <label for="epochs" class="form-label">epochs</label>
+    <input type="number" class="form-control" id="epochs" value="10" min="1" max="1000" step="1">
+</div>
+<div class="mb-3">
+    <label for="lr" class="form-label">learning rate</label>
+    <input type="number" class="form-control" id="lr" value="0.001" min="0.00001" max="1" step="0.0001">
+</div>
+<div class="mb-3">
+    <label for="opt" class="form-label">optimizer</label>
+    <select class="form-select" id="opt">
+        <option value="adam" selected>Adam</option>
+        <option value="adamw">AdamW</option>
+        <option value="rmsprop">RMSprop</option>
+    </select>
+</div>
+<div class="mb-3">
+    <div class="form-label">Auto hyper-parameters</div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="auto" id="auto-yes" value="true" checked>
+        <label class="form-check-label" for="auto-yes">
+            Yes
+        </label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="auto" id="auto-no" value="false">
+        <label class="form-check-label" for="auto-no">
+            No
+        </label>
+    </div>
+</div>
