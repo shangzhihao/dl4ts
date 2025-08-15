@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from sched import scheduler
 import torch
 import torch.nn as nn
 from typing import Type
@@ -16,5 +17,6 @@ class TrainConfig():
     batch_size: int
     epochs: int
     optim: Type[torch.optim.Optimizer]
+    scheduler: str
     lr: float
     automl: bool

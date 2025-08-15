@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dataclasses import asdict
+import sched
 from torch.utils.data import DataLoader
 import mlflow
 import numpy as np
@@ -59,8 +60,9 @@ def get_train_conf()->TrainConfig:
     batch_size = int(envs["batch"])
     epochs = int(envs["epochs"])
     lr = float(envs["lr"])
-    optim = str2opt.get(envs["opt"], torch.optim.Adam)
+    optim = str2opt.get(envs["optim"], torch.optim.Adam)
     automl = envs.get("auto", "True").lower() == "true"
+    scheduler = envs.get("scheduler", "none")
     train_params = {
         "job_path": job_path,
         "batch_size": batch_size,
@@ -68,6 +70,7 @@ def get_train_conf()->TrainConfig:
         "lr": lr,
         "optim": optim,
         "automl": automl,
+        "scheduler": scheduler if scheduler != "none" else None,
     }
     return TrainConfig(**train_params) # type: ignore
 

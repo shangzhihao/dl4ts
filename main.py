@@ -50,7 +50,6 @@ async def train(data: str = Form(...), file: UploadFile = File(None)):
                 if not chunk:
                     break
                 f.write(chunk)
-        docker_envs["file"] = str(file_path)
 
     docker_envs["work_dir"] = docker_working_path
     docker_envs["job_id"] = job_id

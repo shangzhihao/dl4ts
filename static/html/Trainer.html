@@ -13,22 +13,46 @@
 </div>
 <div class="mb-3">
     <label for="opt" class="form-label">optimizer</label>
-    <select class="form-select" id="opt">
+    <select class="form-select" id="optim">
         <option value="adam" selected>Adam</option>
         <option value="adamw">AdamW</option>
         <option value="rmsprop">RMSprop</option>
     </select>
 </div>
 <div class="mb-3">
-    <div class="form-label">Auto hyper-parameters</div>
+    <div class="form-label">weight decay</div>
     <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="auto" id="auto-yes" value="true" checked>
+        <input class="form-check-input" type="radio" name="decay" id="decay-yes" value="true">
+        <label class="form-check-label" for="decay-yes">
+            Yes
+        </label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="decay" id="decay-no" value="false" checked>
+        <label class="form-check-label" for="decay-no">
+            No
+        </label>
+    </div>
+</div>
+<div class="mb-3">
+    <label for="scheduler" class="form-label">learning rate scheduler</label>
+    <select class="form-select" id="scheduler">
+        <option value="constant" selected>Constant</option>
+        <option value="cosine">CosineAnnealing</option>
+        <option value="onecycle">OneCycle</option>
+        <option value="warmup-cos">Warmup-CosineAnnealing</option>
+    </select>
+</div>
+<div class="mb-3">
+    <div class="form-label">auto hyper-parameters</div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="auto" id="auto-yes" value="true">
         <label class="form-check-label" for="auto-yes">
             Yes
         </label>
     </div>
     <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="auto" id="auto-no" value="false">
+        <input class="form-check-input" type="radio" name="auto" id="auto-no" value="false" checked>
         <label class="form-check-label" for="auto-no">
             No
         </label>

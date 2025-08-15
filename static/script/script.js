@@ -99,9 +99,12 @@ document.addEventListener("DOMContentLoaded", function () {
       data.batch = document.getElementById("batch").value;
       data.epochs = document.getElementById("epochs").value;
       data.lr = document.getElementById("lr").value;
-      data.opt = document.getElementById("opt").value;
+      data.optim = document.getElementById("optim").value;
+      data.scheduler = document.getElementById("scheduler").value;
       const autoRadio = document.querySelector('input[name="auto"]:checked');
       data.auto = autoRadio ? autoRadio.value === "true" : false;
+      const decay = document.querySelector('input[name="decay"]:checked');
+      data.decay = decay ? decay.value === "true" : false;
     } else if (model === "LSTM") {
     } else if (model === "xLSTM") {
     } else if (model === "Transformer") {
