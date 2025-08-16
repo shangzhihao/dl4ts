@@ -37,10 +37,11 @@
 <div class="mb-3">
     <label for="scheduler" class="form-label">learning rate scheduler</label>
     <select class="form-select" id="scheduler">
-        <option value="constant" selected>Constant</option>
+        <option value="none" selected>None</option>
+        <option value="constant">Constant</option>
         <option value="cosine">CosineAnnealing</option>
         <option value="onecycle">OneCycle</option>
-        <option value="warmup-cos">Warmup-CosineAnnealing</option>
+        <option value="linear">Linear</option>
     </select>
 </div>
 <div class="mb-3">

@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from dataclasses import asdict
-import sched
 from torch.utils.data import DataLoader
 import mlflow
 import numpy as np
@@ -14,6 +13,11 @@ from config import TrainConfig, MLPConfig
 from models import MLP
 from tsdata import TSDataset
 import logging
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import ConstantLR
+from torch.optim.lr_scheduler import LRScheduler
+from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import LinearLR
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +58,7 @@ def get_dataloader(
     return train_loader, val_loader
 
 
-def get_train_conf()->TrainConfig:
+def get_train_conf() -> TrainConfig:
     job_id = envs["job_id"]
     job_path = data_path / job_id
     batch_size = int(envs["batch"])
@@ -72,12 +76,12 @@ def get_train_conf()->TrainConfig:
         "optim": optim,
         "automl": automl,
         "scheduler": scheduler if scheduler != "none" else None,
-        "decay": decay
+        "decay": decay,
     }
-    return TrainConfig(**train_params) # type: ignore
+    return TrainConfig(**train_params)  # type: ignore
 
 
-def get_mlp_conf()-> MLPConfig:
+def get_mlp_conf() -> MLPConfig:
     window = int(envs["mlp_window"])
     hidden_dims = list(map(int, envs["mlp_neurons"].split(",")))
     act_str = envs["mlp_act_fun"]
@@ -87,7 +91,26 @@ def get_mlp_conf()-> MLPConfig:
         "hidden_dims": hidden_dims,
         "act_fun": act_fun,
     }
-    return MLPConfig(**model_params) # type: ignore
+    return MLPConfig(**model_params)  # type: ignore
+
+
+def get_scheduler(
+    scheduler: str, optim: torch.optim.Optimizer,
+    max_epochs: int, lr: float
+) -> LRScheduler | None:
+    if scheduler == "constant":
+        return ConstantLR(optim, factor=1.0, total_iters=max_epochs)
+    elif scheduler == "cosine":
+        return CosineAnnealingLR(optim, T_max=max_epochs)
+    elif scheduler == "onecycle":
+        return OneCycleLR(optim, max_lr=lr,
+            epochs=max_epochs, steps_per_epoch=1)
+    elif scheduler == "linear":
+        return LinearLR(
+            optim, start_factor=1.0, end_factor=0.1,
+            total_iters=max_epochs // 2)
+    else:
+        return None
 
 
 def train():
@@ -107,7 +130,7 @@ def train():
     )
     weight_decay = 1e-5 if train_conf.decay else 0
     optimizer = train_conf.optim(
-        model.parameters(), lr=train_conf.lr, weight_decay=weight_decay) # type: ignore
+        model.parameters(), lr=train_conf.lr, weight_decay=weight_decay)  # type: ignore
     job_path = train_conf.job_path
     mlflow_path = job_path / envs["mlflow_dir"]
     os.makedirs(mlflow_path, exist_ok=True)
@@ -119,6 +142,11 @@ def train():
         epochs = train_conf.epochs
         len_train = len(train_loader.dataset)  # type: ignore
         len_val = len(val_loader.dataset)  # type: ignore
+        scheduler = None
+        if train_conf.scheduler:
+            scheduler = get_scheduler(
+                train_conf.scheduler,
+                optimizer, epochs, train_conf.lr)
         for epoch in range(epochs):
             model.train()
             total_loss = 0
@@ -129,6 +157,8 @@ def train():
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item() * xb.size(0)
+            if scheduler is not None:
+                scheduler.step()
             avg_loss = total_loss / len_train
 
             # Validation
@@ -151,7 +181,7 @@ def train():
             outputs=Schema([TensorSpec(np.dtype("float32"), (-1, 1))]),
         )
         input_np = np.random.rand(1, window)
-        mlflow.pytorch.log_model( # type: ignore
+        mlflow.pytorch.log_model(  # type: ignore
             pytorch_model=model, name="model", input_example=input_np, signature=sig
         )
         # Save trained model in job_path

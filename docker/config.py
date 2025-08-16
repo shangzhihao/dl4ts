@@ -17,10 +17,9 @@ class TrainConfig():
     batch_size: int
     epochs: int
     optim: Type[torch.optim.Optimizer]
-    scheduler: str
     lr: float
     decay: bool
-    scheduler: str
+    scheduler: str | None
     automl: bool
 
 from dataclasses import dataclass
