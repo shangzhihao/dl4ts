@@ -104,6 +104,13 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (model === "xLSTM") {
     } else if (model === "TCN") {
     } else if (model === "Transformer") {
+      data.att_window = document.getElementById("att-window").value;
+      data.att_dmodel= document.getElementById("att-dmodel").value;
+      data.att_nhead = document.getElementById("att-nhead").value;
+      data.att_dropout = document.getElementById("att-dropout").value;
+      data.att_dim_forward = document.getElementById("att-dim-forward").value;
+      data.att_layers = document.getElementById("att-layers").value;
+      data.att_act_fun = document.getElementById("att-act-fun").value;
     }
     // training parameters
     data.batch = document.getElementById("batch").value;

@@ -1,18 +1,26 @@
 <div class="mb-3">
-    <label for="att-dim" class="form-label">num of features</label>
-    <input type="number" class="form-control" id="att-dim" , value="16" min="4" step="1">
+    <label for="att-window" class="form-label">input window</label>
+    <input type="number" class="form-control" id="att-window" value="10" min="1" max="100" step="1">
 </div>
 <div class="mb-3">
-    <label for="att-head" class="form-label">num of attention head</label>
-    <input type="number" class="form-control" id="att-head" value="10" min="1" max="100" step="1">
+    <label for="att-layers" class="form-label">num of layers</label>
+    <input type="number" class="form-control" id="att-layers" value="4" min="1" max="10" step="1">
 </div>
 <div class="mb-3">
-    <label for="att-drop" class="form-label">dropout</label>
-    <input type="number" class="form-control" id="att-drop" value="10" min="1" max="100" step="1">
+    <label for="att-dmodel" class="form-label">num of features</label>
+    <input type="number" class="form-control" id="att-dmodel" , value="32" min="4" max="256" step="1">
+</div>
+<div class="mb-3">
+    <label for="att-nhead" class="form-label">num of attention head</label>
+    <input type="number" class="form-control" id="att-nhead" value="4" min="1" max="16" step="1">
+</div>
+<div class="mb-3">
+    <label for="att-dropout" class="form-label">dropout</label>
+    <input type="number" class="form-control" id="att-dropout" value="0.1" min="0" max="1" step="0.1">
 </div>
 <div class="mb-3">
     <label for="att-dim-forward" class="form-label">dim of feedforward layer</label>
-    <input type="number" class="form-control" id="att-dim-forward" value="10" min="1" max="100" step="1">
+    <input type="number" class="form-control" id="att-dim-forward" value="64" min="16" max="512" step="1">
 </div>
 <div class="mb-3">
     <label for="att-act-fun" class="form-label">activation function</label>
