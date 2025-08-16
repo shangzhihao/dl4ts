@@ -62,6 +62,7 @@ def get_train_conf()->TrainConfig:
     lr = float(envs["lr"])
     optim = str2opt.get(envs["optim"], torch.optim.Adam)
     automl = envs.get("auto", "True").lower() == "true"
+    decay = envs.get("decay", "True").lower() == "true"
     scheduler = envs.get("scheduler", "none")
     train_params = {
         "job_path": job_path,
@@ -71,6 +72,7 @@ def get_train_conf()->TrainConfig:
         "optim": optim,
         "automl": automl,
         "scheduler": scheduler if scheduler != "none" else None,
+        "decay": decay
     }
     return TrainConfig(**train_params) # type: ignore
 
@@ -103,8 +105,9 @@ def train():
     train_loader, val_loader = get_dataloader(
         train_conf.job_path, window, train_conf.batch_size
     )
-
-    optimizer = train_conf.optim(model.parameters(), lr=train_conf.lr)
+    weight_decay = 1e-5 if train_conf.decay else 0
+    optimizer = train_conf.optim(
+        model.parameters(), lr=train_conf.lr, weight_decay=weight_decay) # type: ignore
     job_path = train_conf.job_path
     mlflow_path = job_path / envs["mlflow_dir"]
     os.makedirs(mlflow_path, exist_ok=True)

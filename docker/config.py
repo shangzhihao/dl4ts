@@ -9,7 +9,7 @@ from typing import Type
 class MLPConfig():
     window: int
     hidden_dims: list[int]
-    act_fun: nn.Module
+    act_fun: Type[nn.Module]
 
 @dataclass
 class TrainConfig():
@@ -19,4 +19,14 @@ class TrainConfig():
     optim: Type[torch.optim.Optimizer]
     scheduler: str
     lr: float
+    decay: bool
+    scheduler: str
     automl: bool
+
+from dataclasses import dataclass
+
+@dataclass
+class LSTMConfig:
+    layers: int
+    dropout: float
+    input_window: int
