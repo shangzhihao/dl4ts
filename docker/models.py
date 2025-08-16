@@ -1,6 +1,6 @@
 import pandas as pd
 import torch.nn as nn
-from config import MLPConfig
+from config import MLPConfig, LSTMConfig
 
 
 class MLP(nn.Module):
@@ -20,3 +20,17 @@ class MLP(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+class LSTM_Model(nn.Module):
+    def __init__(self, config: LSTMConfig):
+        super().__init__()
+        self.lstm = nn.LSTM(
+            input_size=config.window,
+            hidden_size=config.hidden,
+            num_layers=config.layers,
+            batch_first=True,
+            dropout=config.dropout,
+        )
+        self.fc = nn.Linear(config.hidden, 1)
+    def forward(self, x):
+        lstm_out, _ = self.lstm(x)
+        return self.fc(lstm_out)

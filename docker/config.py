@@ -25,7 +25,8 @@ class TrainConfig():
 from dataclasses import dataclass
 
 @dataclass
-class LSTMConfig:
+class LSTMConfig():
     layers: int
     dropout: float
-    input_window: int
+    window: int
+    hidden: int

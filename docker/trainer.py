@@ -1,23 +1,21 @@
+import logging
 import os
-from pathlib import Path
 from dataclasses import asdict
-from torch.utils.data import DataLoader
+from pathlib import Path
+
 import mlflow
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from config import LSTMConfig, MLPConfig, TrainConfig
 from mlflow.models.signature import ModelSignature
 from mlflow.types.schema import Schema, TensorSpec
-from config import TrainConfig, MLPConfig
-from models import MLP
+from models import MLP, LSTM_Model
+from torch.optim.lr_scheduler import (ConstantLR, CosineAnnealingLR, LinearLR,
+                                      LRScheduler, OneCycleLR)
+from torch.utils.data import DataLoader
 from tsdata import TSDataset
-import logging
-from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.optim.lr_scheduler import ConstantLR
-from torch.optim.lr_scheduler import LRScheduler
-from torch.optim.lr_scheduler import OneCycleLR
-from torch.optim.lr_scheduler import LinearLR
 
 logger = logging.getLogger(__name__)
 
@@ -68,17 +66,17 @@ def get_train_conf() -> TrainConfig:
     automl = envs.get("auto", "True").lower() == "true"
     decay = envs.get("decay", "True").lower() == "true"
     scheduler = envs.get("scheduler", "none")
-    train_params = {
-        "job_path": job_path,
-        "batch_size": batch_size,
-        "epochs": epochs,
-        "lr": lr,
-        "optim": optim,
-        "automl": automl,
-        "scheduler": scheduler if scheduler != "none" else None,
-        "decay": decay,
-    }
-    return TrainConfig(**train_params)  # type: ignore
+    return TrainConfig(
+        job_path=job_path,
+        batch_size=batch_size,
+        epochs=epochs,
+        lr=lr,
+        optim=optim,
+        automl=automl,
+        scheduler=scheduler if scheduler != "none" else None,
+        decay=decay,
+    )
+
 
 
 def get_mlp_conf() -> MLPConfig:
@@ -86,12 +84,21 @@ def get_mlp_conf() -> MLPConfig:
     hidden_dims = list(map(int, envs["mlp_neurons"].split(",")))
     act_str = envs["mlp_act_fun"]
     act_fun = str2act.get(act_str, nn.GELU)
-    model_params = {
-        "window": window,
-        "hidden_dims": hidden_dims,
-        "act_fun": act_fun,
-    }
-    return MLPConfig(**model_params)  # type: ignore
+    return MLPConfig(
+        window=window,
+        hidden_dims=hidden_dims,
+        act_fun=act_fun)
+
+def get_lstm_conf() -> LSTMConfig:
+    layers = int(envs["lstm_layers"])
+    dropout = float(envs["lstm_dropout"])
+    window = int(envs["lstm_window"])
+    hidden= int(envs["lstm_hidden"])
+    return LSTMConfig(
+        layers=layers,
+        dropout=dropout,
+        window=window,
+        hidden=hidden)
 
 
 def get_scheduler(
@@ -121,6 +128,9 @@ def train():
     if envs["model"] == "MLP":
         model_conf = get_mlp_conf()
         model = MLP(model_conf)
+    elif envs["model"] == "LSTM":
+        model_conf = get_lstm_conf()
+        model = LSTM_Model(model_conf)
     else:
         raise ValueError(f"Unsupported model type: {envs['model']}")
 

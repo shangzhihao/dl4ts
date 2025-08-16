@@ -5,6 +5,7 @@ The data format should be as follows: two columns in a csv file, the first colum
 
 - Docker is required sice it trains the model in a docker container.
 - It does not support GPU training yet.
+- There is no data validation now, any invalid data will cause an error.
 - This is a FastAPI based web app. You can run it with the following command:
 ``` bash
 uvicorn main:app
