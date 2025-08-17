@@ -8,10 +8,15 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from config import LSTMConfig, MLPConfig, TrainConfig, TSDecoderConfig
+from config import (
+    LSTMConfig,
+    MLPConfig,
+    TrainConfig,
+    TSDecoderConfig,
+    TCNConfig)
 from mlflow.models.signature import ModelSignature
 from mlflow.types.schema import Schema, TensorSpec
-from models import MLP, LSTM_Model, TSDecoder
+from models import MLP, LSTM_Model, TSDecoder, TCN
 from torch.optim.lr_scheduler import (
     ConstantLR,
     CosineAnnealingLR,
@@ -93,7 +98,6 @@ def get_mlp_conf() -> MLPConfig:
     return MLPConfig(window=window,
         hidden_dims=hidden_dims, act_fun=act_fun)
 
-
 def get_lstm_conf() -> LSTMConfig:
     layers = int(envs["lstm_layers"])
     dropout = float(envs["lstm_dropout"])
@@ -101,6 +105,14 @@ def get_lstm_conf() -> LSTMConfig:
     hidden = int(envs["lstm_hidden"])
     return LSTMConfig(layers=layers,
         dropout=dropout, window=window, hidden=hidden)
+
+def get_tcn_conf() -> TCNConfig:
+    channels = list(map(int, envs["tcn_channels"].split(",")))
+    kernel_size = int(envs["tcn_kernel_size"])
+    dropuout = float(envs["tcn_dropout"])
+    return TCNConfig(channels=channels,
+        kernel_size=kernel_size, dropuout=dropuout)
+
 def get_tsdecoder_conf() -> TSDecoderConfig:
     window = int(envs["att_window"])
     nhead = int(envs["att_nhead"])
@@ -143,6 +155,9 @@ def train():
     elif envs["model"] == "LSTM":
         model_conf = get_lstm_conf()
         model = LSTM_Model(model_conf)
+    elif envs["model"] == "TCN":
+        model_conf = get_tcn_conf()
+        model = TCN(model_conf)
     elif envs["model"] == "Transformer":
         model_conf = get_tsdecoder_conf()
         model = TSDecoder(model_conf)

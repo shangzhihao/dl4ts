@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const forms = {
     MLP: document.getElementById("mlp-form"),
     LSTM: document.getElementById("lstm-form"),
-    xLSTM: document.getElementById("xlstm-form"),
+    TCN: document.getElementById("tcn-form"),
     Transformer: document.getElementById("transformer-form"),
   };
 
@@ -95,14 +95,16 @@ document.addEventListener("DOMContentLoaded", function () {
       data.mlp_neurons = document.getElementById("mlp-neurons").value;
       data.mlp_act_fun = document.getElementById("mlp-act-fun").value;
       data.mlp_window = document.getElementById("mlp-window").value;
-
     } else if (model === "LSTM") {
       data.lstm_layers = document.getElementById("lstm-layers").value;
       data.lstm_dropout = document.getElementById("lstm-dropout").value;
       data.lstm_window = document.getElementById("lstm-window").value;
       data.lstm_hidden = document.getElementById("lstm-hidden").value;
-    } else if (model === "xLSTM") {
     } else if (model === "TCN") {
+      data.tcn_window = document.getElementById("tcn-window").value;
+      data.tcn_kernel = document.getElementById("tcn-kernel").value;
+      data.tcn_channels = document.getElementById("tcn-channels").value;
+      data.tcn_dropout = document.getElementById("tcn-dropout").value;
     } else if (model === "Transformer") {
       data.att_window = document.getElementById("att-window").value;
       data.att_dmodel= document.getElementById("att-dmodel").value;

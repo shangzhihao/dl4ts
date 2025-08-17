@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from config import MLPConfig, LSTMConfig, TSDecoderConfig
+from config import MLPConfig, LSTMConfig, TSDecoderConfig, TCNConfig
 import math
 
 class MLP(nn.Module):
@@ -53,6 +53,84 @@ class PositionalEncoding(nn.Module):
 def generate_causal_mask(L, device=None):
     return torch.triu(torch.ones(L, L, device=device), diagonal=1).bool()
 
+
+class Chomp1d(nn.Module):
+    def __init__(self, chomp_size):
+        super(Chomp1d, self).__init__()
+        self.chomp_size = chomp_size
+
+    def forward(self, x):
+        return x[:, :, :-self.chomp_size].contiguous()
+
+class TemporalBlock(nn.Module):
+    def __init__(self, n_inputs, n_outputs, kernel_size, dilation, padding, dropout=0.2):
+        super(TemporalBlock, self).__init__()
+        self.conv1 = nn.Conv1d(n_inputs, n_outputs, kernel_size,
+                                           padding=padding, dilation=dilation)
+        self.chomp1 = Chomp1d(padding)
+        self.relu1 = nn.ReLU()
+        self.dropout1 = nn.Dropout(dropout)
+
+        self.conv2 = nn.Conv1d(n_outputs, n_outputs, kernel_size,
+                                           padding=padding, dilation=dilation)
+        self.chomp2 = Chomp1d(padding)
+        self.relu2 = nn.ReLU()
+        self.dropout2 = nn.Dropout(dropout)
+
+        self.net = nn.Sequential(
+            self.conv1, self.chomp1, self.relu1, self.dropout1,
+            self.conv2, self.chomp2, self.relu2, self.dropout2
+        )
+
+        self.downsample = nn.Conv1d(n_inputs, n_outputs, 1) if n_inputs != n_outputs else None
+        self.relu = nn.ReLU()
+        self.init_weights()
+
+    def init_weights(self):
+        nn.init.xavier_uniform_(self.conv1.weight)
+        nn.init.xavier_uniform_(self.conv2.weight)
+        if self.downsample is not None:
+            nn.init.xavier_uniform_(self.downsample.weight)
+
+    def forward(self, x):
+        out = self.net(x)
+        res = x if self.downsample is None else self.downsample(x)
+        return self.relu(out + res)
+
+
+class TCN(nn.Module):
+    def __init__(self, conf: TCNConfig):
+                 # num_channels=None, kernel_size=2, dropout=0.1):
+        super(TCN, self).__init__()
+        channels = conf.channels
+        kernel_size = conf.kernel_size
+        dropout = conf.dropuout
+        if channels is None:
+            channels = [32, 64, 32]
+
+        layers = []
+        num_levels = len(channels)
+        for i in range(num_levels):
+            dilation = 2 ** i
+            in_channels = 1 if i == 0 else channels[i-1]
+            out_channels = channels[i]
+            padding = (kernel_size - 1) * dilation
+
+            layers.append(
+                TemporalBlock(in_channels, out_channels, kernel_size, dilation, padding, dropout)
+            )
+
+        self.network = nn.Sequential(*layers)
+        self.global_avg_pool = nn.AdaptiveAvgPool1d(1)
+        self.fc = nn.Linear(channels[-1], 1)
+
+    def forward(self, x):
+        x = x.unsqueeze(1) 
+        y = self.network(x)
+
+        y = self.global_avg_pool(y).squeeze(-1)
+        output = self.fc(y)
+        return output
 
 class TSDecoder(nn.Module):
     def __init__(self, config: TSDecoderConfig):

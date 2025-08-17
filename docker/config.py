@@ -33,6 +33,12 @@ class LSTMConfig:
     window: int
     hidden: int
 
+@dataclass
+class TCNConfig():
+    channels: list[int]
+    kernel_size: int
+    dropuout: float
+
 
 @dataclass
 class TSDecoderConfig:
