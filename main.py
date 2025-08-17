@@ -11,7 +11,7 @@ import mlflow
 volume_path = Path(__file__).parent / "docker"
 data_path = volume_path / "data"
 docker_working_path = "/tl4ds"
-docker_image = "dl4ts:dev"
+docker_image = "shangzhihao/dl4ts:latest"
 sample_file = "samples.csv"
 train_script = "train.sh"
 mlflow_dir = "mlflow_runs"

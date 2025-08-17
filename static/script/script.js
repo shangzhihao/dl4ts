@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const forms = {
     MLP: document.getElementById("mlp-form"),
     LSTM: document.getElementById("lstm-form"),
-    xLSTM: document.getElementById("xlstm-form"),
+    TCN: document.getElementById("tcn-form"),
     Transformer: document.getElementById("transformer-form"),
   };
 
@@ -90,25 +90,40 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("train-btn").addEventListener("click", function () {
     const model = document.getElementById("modelSelect").value;
     let data = { model };
-
+    // model parameters
     if (model === "MLP") {
       data.mlp_neurons = document.getElementById("mlp-neurons").value;
       data.mlp_act_fun = document.getElementById("mlp-act-fun").value;
       data.mlp_window = document.getElementById("mlp-window").value;
-
-      data.batch = document.getElementById("batch").value;
-      data.epochs = document.getElementById("epochs").value;
-      data.lr = document.getElementById("lr").value;
-      data.optim = document.getElementById("optim").value;
-      data.scheduler = document.getElementById("scheduler").value;
-      const autoRadio = document.querySelector('input[name="auto"]:checked');
-      data.auto = autoRadio ? autoRadio.value === "true" : false;
-      const decay = document.querySelector('input[name="decay"]:checked');
-      data.decay = decay ? decay.value === "true" : false;
     } else if (model === "LSTM") {
-    } else if (model === "xLSTM") {
+      data.lstm_layers = document.getElementById("lstm-layers").value;
+      data.lstm_dropout = document.getElementById("lstm-dropout").value;
+      data.lstm_window = document.getElementById("lstm-window").value;
+      data.lstm_hidden = document.getElementById("lstm-hidden").value;
+    } else if (model === "TCN") {
+      data.tcn_window = document.getElementById("tcn-window").value;
+      data.tcn_kernel = document.getElementById("tcn-kernel").value;
+      data.tcn_channels = document.getElementById("tcn-channels").value;
+      data.tcn_dropout = document.getElementById("tcn-dropout").value;
     } else if (model === "Transformer") {
+      data.att_window = document.getElementById("att-window").value;
+      data.att_dmodel= document.getElementById("att-dmodel").value;
+      data.att_nhead = document.getElementById("att-nhead").value;
+      data.att_dropout = document.getElementById("att-dropout").value;
+      data.att_dim_forward = document.getElementById("att-dim-forward").value;
+      data.att_layers = document.getElementById("att-layers").value;
+      data.att_act_fun = document.getElementById("att-act-fun").value;
     }
+    // training parameters
+    data.batch = document.getElementById("batch").value;
+    data.epochs = document.getElementById("epochs").value;
+    data.lr = document.getElementById("lr").value;
+    data.optim = document.getElementById("optim").value;
+    data.scheduler = document.getElementById("scheduler").value;
+    const autoRadio = document.querySelector('input[name="auto"]:checked');
+    data.auto = autoRadio ? autoRadio.value === "true" : false;
+    const decay = document.querySelector('input[name="decay"]:checked');
+    data.decay = decay ? decay.value === "true" : false;
 
     // Get the selected file
     const fileInput = document.getElementById("samples");
@@ -168,7 +183,7 @@ function trackJob(jobId) {
                     valChart.data.datasets[0].label = "Validation Loss";
                     valChart.update();
                 }
-                
+                // update progress bar
                 const pbar = document.getElementById("train-progress");
                 pbar.style.display = "block";
                 if(progress.length > 0){

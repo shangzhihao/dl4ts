@@ -1,23 +1,31 @@
+import logging
 import os
-from pathlib import Path
 from dataclasses import asdict
-from torch.utils.data import DataLoader
+from pathlib import Path
+
 import mlflow
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+from config import (
+    LSTMConfig,
+    MLPConfig,
+    TrainConfig,
+    TSDecoderConfig,
+    TCNConfig)
 from mlflow.models.signature import ModelSignature
 from mlflow.types.schema import Schema, TensorSpec
-from config import TrainConfig, MLPConfig
-from models import MLP
+from models import MLP, LSTM_Model, TSDecoder, TCN
+from torch.optim.lr_scheduler import (
+    ConstantLR,
+    CosineAnnealingLR,
+    LinearLR,
+    LRScheduler,
+    OneCycleLR,
+)
+from torch.utils.data import DataLoader
 from tsdata import TSDataset
-import logging
-from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.optim.lr_scheduler import ConstantLR
-from torch.optim.lr_scheduler import LRScheduler
-from torch.optim.lr_scheduler import OneCycleLR
-from torch.optim.lr_scheduler import LinearLR
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +61,10 @@ def get_dataloader(
     # Create datasets
     train_dataset = TSDataset(train_list, window)
     val_dataset = TSDataset(val_list, window)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset,
+        batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset,
+        batch_size=batch_size, shuffle=False)
     return train_loader, val_loader
 
 
@@ -68,17 +78,16 @@ def get_train_conf() -> TrainConfig:
     automl = envs.get("auto", "True").lower() == "true"
     decay = envs.get("decay", "True").lower() == "true"
     scheduler = envs.get("scheduler", "none")
-    train_params = {
-        "job_path": job_path,
-        "batch_size": batch_size,
-        "epochs": epochs,
-        "lr": lr,
-        "optim": optim,
-        "automl": automl,
-        "scheduler": scheduler if scheduler != "none" else None,
-        "decay": decay,
-    }
-    return TrainConfig(**train_params)  # type: ignore
+    return TrainConfig(
+        job_path=job_path,
+        batch_size=batch_size,
+        epochs=epochs,
+        lr=lr,
+        optim=optim,
+        automl=automl,
+        scheduler=scheduler if scheduler != "none" else None,
+        decay=decay,
+    )
 
 
 def get_mlp_conf() -> MLPConfig:
@@ -86,12 +95,35 @@ def get_mlp_conf() -> MLPConfig:
     hidden_dims = list(map(int, envs["mlp_neurons"].split(",")))
     act_str = envs["mlp_act_fun"]
     act_fun = str2act.get(act_str, nn.GELU)
-    model_params = {
-        "window": window,
-        "hidden_dims": hidden_dims,
-        "act_fun": act_fun,
-    }
-    return MLPConfig(**model_params)  # type: ignore
+    return MLPConfig(window=window,
+        hidden_dims=hidden_dims, act_fun=act_fun)
+
+def get_lstm_conf() -> LSTMConfig:
+    layers = int(envs["lstm_layers"])
+    dropout = float(envs["lstm_dropout"])
+    window = int(envs["lstm_window"])
+    hidden = int(envs["lstm_hidden"])
+    return LSTMConfig(layers=layers,
+        dropout=dropout, window=window, hidden=hidden)
+
+def get_tcn_conf() -> TCNConfig:
+    channels = list(map(int, envs["tcn_channels"].split(",")))
+    kernel_size = int(envs["tcn_kernel_size"])
+    dropuout = float(envs["tcn_dropout"])
+    return TCNConfig(channels=channels,
+        kernel_size=kernel_size, dropuout=dropuout)
+
+def get_tsdecoder_conf() -> TSDecoderConfig:
+    window = int(envs["att_window"])
+    nhead = int(envs["att_nhead"])
+    d_model = int(envs["att_dmodel"])
+    layers = int(envs["att_layers"])
+    dim_forward = int(envs["att_dim_forward"])
+    dropout = float(envs["att_dropout"])
+    return TSDecoderConfig(window=window,
+        nhead=nhead, d_model=d_model, layers=layers,
+        dim_forward=dim_forward, dropout=dropout)
+
 
 
 def get_scheduler(
@@ -103,12 +135,11 @@ def get_scheduler(
     elif scheduler == "cosine":
         return CosineAnnealingLR(optim, T_max=max_epochs)
     elif scheduler == "onecycle":
-        return OneCycleLR(optim, max_lr=lr,
-            epochs=max_epochs, steps_per_epoch=1)
+        return OneCycleLR(optim, max_lr=lr, epochs=max_epochs, steps_per_epoch=1)
     elif scheduler == "linear":
         return LinearLR(
-            optim, start_factor=1.0, end_factor=0.1,
-            total_iters=max_epochs // 2)
+            optim, start_factor=1.0, end_factor=0.1, total_iters=max_epochs // 2
+        )
     else:
         return None
 
@@ -121,6 +152,15 @@ def train():
     if envs["model"] == "MLP":
         model_conf = get_mlp_conf()
         model = MLP(model_conf)
+    elif envs["model"] == "LSTM":
+        model_conf = get_lstm_conf()
+        model = LSTM_Model(model_conf)
+    elif envs["model"] == "TCN":
+        model_conf = get_tcn_conf()
+        model = TCN(model_conf)
+    elif envs["model"] == "Transformer":
+        model_conf = get_tsdecoder_conf()
+        model = TSDecoder(model_conf)
     else:
         raise ValueError(f"Unsupported model type: {envs['model']}")
 
@@ -130,7 +170,8 @@ def train():
     )
     weight_decay = 1e-5 if train_conf.decay else 0
     optimizer = train_conf.optim(
-        model.parameters(), lr=train_conf.lr, weight_decay=weight_decay)  # type: ignore
+        model.parameters(),
+        lr=train_conf.lr, weight_decay=weight_decay)  # type: ignore
     job_path = train_conf.job_path
     mlflow_path = job_path / envs["mlflow_dir"]
     os.makedirs(mlflow_path, exist_ok=True)
@@ -145,8 +186,8 @@ def train():
         scheduler = None
         if train_conf.scheduler:
             scheduler = get_scheduler(
-                train_conf.scheduler,
-                optimizer, epochs, train_conf.lr)
+                train_conf.scheduler, optimizer, epochs, train_conf.lr
+            )
         for epoch in range(epochs):
             model.train()
             total_loss = 0
