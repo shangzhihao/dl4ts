@@ -1,24 +1,16 @@
-# a simple tool for time series forecasting using deep learning model
+# A simple tool for time series forecasting using deep learning model
 This is a simple tool for time series forecasting using deep learning model. It is written in Python and uses the pytorch library. The tool can be used for univariate time sereis data now.
 
 The data format should be as follows: two columns in a csv file, the first column is the training data, the second column is the validation data.
 
 - Docker is required sice it trains the model in a docker container.
 - It does not support GPU training yet.
-<<<<<<< HEAD
-- There is no data validation now, any invalid data will cause an error.
-- This is a FastAPI based web app. You can run it with the following command:
-=======
 - There is no data validation now, any invalid input may cause errors.
 
 
-Here’s a drop-in replacement for the **Environment** section of your README:
-
----
-
 ## 🚀 Quickstart
-Make sure you have [Docker](https://docs.docker.com/get-docker/) installed.
 
+Make sure you have [Docker](https://docs.docker.com/get-docker/) installed.
 This project uses **PEP 621** metadata — all dependencies live in `pyproject.toml` (no `requirements.txt`).
 
 ```bash
@@ -45,7 +37,6 @@ pip install -e .
 
 
  You can run it with the following command:
->>>>>>> dev
 ``` bash
 uvicorn main:app
 ```
