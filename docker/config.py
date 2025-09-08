@@ -1,14 +1,13 @@
 from curses import window
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Type
 
 import torch
 import torch.nn as nn
+from pydantic import BaseModel, ConfigDict
 
 
-@dataclass
-class TrainConfig:
+class TrainConfig(BaseModel):
     job_path: Path
     batch_size: int
     epochs: int
@@ -18,31 +17,32 @@ class TrainConfig:
     scheduler: str | None
     automl: bool
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-@dataclass
-class MLPConfig:
+
+class MLPConfig(BaseModel):
     window: int
     hidden_dims: list[int]
     act_fun: Type[nn.Module]
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-@dataclass
-class LSTMConfig:
+
+class LSTMConfig(BaseModel):
     layers: int
     dropout: float
     window: int
     hidden: int
 
-@dataclass
-class TCNConfig():
+
+class TCNConfig(BaseModel):
     channels: list[int]
     kernel_size: int
     dropout: float
     window: int
 
 
-@dataclass
-class TSDecoderConfig:
+class TSDecoderConfig(BaseModel):
     window: int
     nhead: int
     d_model: int

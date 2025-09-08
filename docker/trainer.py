@@ -1,7 +1,5 @@
-from curses import window
 import logging
 import os
-from dataclasses import asdict
 from pathlib import Path
 
 import mlflow
@@ -110,10 +108,10 @@ def get_lstm_conf() -> LSTMConfig:
 def get_tcn_conf() -> TCNConfig:
     channels = list(map(int, envs["tcn_channels"].split(",")))
     kernel_size = int(envs["tcn_kernel_size"])
-    dropuout = float(envs["tcn_dropout"])
+    dropout = float(envs["tcn_dropout"])
     window = int(envs["tcn_window"])
     return TCNConfig(channels=channels,
-        kernel_size=kernel_size, dropuout=dropuout, window=window)
+        kernel_size=kernel_size, dropout=dropout, window=window)
 def get_tsdecoder_conf() -> TSDecoderConfig:
     window = int(envs["att_window"])
     nhead = int(envs["att_nhead"])
@@ -179,8 +177,8 @@ def train():
     mlflow.set_tracking_uri(f"file://{mlflow_path.resolve()}")
     mlflow.set_experiment(envs["mlflow_exp_name"])
     with mlflow.start_run():
-        mlflow.log_params(asdict(model_conf))
-        mlflow.log_params(asdict(train_conf))
+        mlflow.log_params(model_conf.model_dump())
+        mlflow.log_params(train_conf.model_dump())
         epochs = train_conf.epochs
         len_train = len(train_loader.dataset)  # type: ignore
         len_val = len(val_loader.dataset)  # type: ignore
