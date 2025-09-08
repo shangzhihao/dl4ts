@@ -90,36 +90,49 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("train-btn").addEventListener("click", function () {
     const model = document.getElementById("modelSelect").value;
     let data = { model };
-    // model parameters
-    if (model === "MLP") {
-      data.mlp_neurons = document.getElementById("mlp-neurons").value;
-      data.mlp_act_fun = document.getElementById("mlp-act-fun").value;
-      data.mlp_window = document.getElementById("mlp-window").value;
-    } else if (model === "LSTM") {
-      data.lstm_layers = document.getElementById("lstm-layers").value;
-      data.lstm_dropout = document.getElementById("lstm-dropout").value;
-      data.lstm_window = document.getElementById("lstm-window").value;
-      data.lstm_hidden = document.getElementById("lstm-hidden").value;
-    } else if (model === "TCN") {
-      data.tcn_window = document.getElementById("tcn-window").value;
-      data.tcn_kernel_size = document.getElementById("tcn-kernel-size").value;
-      data.tcn_channels = document.getElementById("tcn-channels").value;
-      data.tcn_dropout = document.getElementById("tcn-dropout").value;
-    } else if (model === "Transformer") {
-      data.att_window = document.getElementById("att-window").value;
-      data.att_dmodel= document.getElementById("att-dmodel").value;
-      data.att_nhead = document.getElementById("att-nhead").value;
-      data.att_dropout = document.getElementById("att-dropout").value;
-      data.att_dim_forward = document.getElementById("att-dim-forward").value;
-      data.att_layers = document.getElementById("att-layers").value;
-      data.att_act_fun = document.getElementById("att-act-fun").value;
+
+    // Map of model -> { inputId: payloadKey }
+    const modelParamMap = {
+      MLP: {
+        "mlp-neurons": "mlp_neurons",
+        "mlp-act-fun": "mlp_act_fun",
+        "mlp-window": "mlp_window",
+      },
+      LSTM: {
+        "lstm-layers": "lstm_layers",
+        "lstm-dropout": "lstm_dropout",
+        "lstm-window": "lstm_window",
+        "lstm-hidden": "lstm_hidden",
+      },
+      TCN: {
+        "tcn-window": "tcn_window",
+        "tcn-kernel-size": "tcn_kernel_size",
+        "tcn-channels": "tcn_channels",
+        "tcn-dropout": "tcn_dropout",
+      },
+      Transformer: {
+        "att-window": "att_window",
+        "att-nhead": "att_nhead",
+        "att-dmodel": "att_dmodel",
+        "att-layers": "att_layers",
+        "att-dropout": "att_dropout",
+        "att-dim-forward": "att_dim_forward",
+        "att-act-fun": "att_act_fun",
+      },
+    };
+
+    // Collect model-specific params
+    const paramMap = modelParamMap[model] || {};
+    for (const [inputId, key] of Object.entries(paramMap)) {
+      const el = document.getElementById(inputId);
+      if (el) data[key] = el.value;
     }
-    // training parameters
-    data.batch = document.getElementById("batch").value;
-    data.epochs = document.getElementById("epochs").value;
-    data.lr = document.getElementById("lr").value;
-    data.optim = document.getElementById("optim").value;
-    data.scheduler = document.getElementById("scheduler").value;
+
+    // Training parameters
+    ["batch", "epochs", "lr", "optim", "scheduler"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
     const autoRadio = document.querySelector('input[name="auto"]:checked');
     data.auto = autoRadio ? autoRadio.value === "true" : false;
     const decay = document.querySelector('input[name="decay"]:checked');
