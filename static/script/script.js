@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
       data.lstm_hidden = document.getElementById("lstm-hidden").value;
     } else if (model === "TCN") {
       data.tcn_window = document.getElementById("tcn-window").value;
-      data.tcn_kernel = document.getElementById("tcn-kernel").value;
+      data.tcn_kernel_size = document.getElementById("tcn-kernel-size").value;
       data.tcn_channels = document.getElementById("tcn-channels").value;
       data.tcn_dropout = document.getElementById("tcn-dropout").value;
     } else if (model === "Transformer") {

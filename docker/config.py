@@ -1,6 +1,6 @@
+from curses import window
 from dataclasses import dataclass
 from pathlib import Path
-from sched import scheduler
 from typing import Type
 
 import torch
@@ -37,7 +37,8 @@ class LSTMConfig:
 class TCNConfig():
     channels: list[int]
     kernel_size: int
-    dropuout: float
+    dropout: float
+    window: int
 
 
 @dataclass

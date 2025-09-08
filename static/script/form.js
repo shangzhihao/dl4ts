@@ -11,7 +11,7 @@ function fetchForm(model, formId) {
 }
 
 fetchForm("MLP", "mlp-form");
-fetchForm("tcn", "tcn-form");
+fetchForm("TCN", "tcn-form");
 fetchForm("LSTM", "lstm-form");
 fetchForm("Transformer", "transformer-form");
 fetchForm("Trainer", "trainer");
