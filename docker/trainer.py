@@ -1,3 +1,4 @@
+from curses import window
 import logging
 import os
 from dataclasses import asdict
@@ -110,9 +111,9 @@ def get_tcn_conf() -> TCNConfig:
     channels = list(map(int, envs["tcn_channels"].split(",")))
     kernel_size = int(envs["tcn_kernel_size"])
     dropuout = float(envs["tcn_dropout"])
+    window = int(envs["tcn_window"])
     return TCNConfig(channels=channels,
-        kernel_size=kernel_size, dropuout=dropuout)
-
+        kernel_size=kernel_size, dropuout=dropuout, window=window)
 def get_tsdecoder_conf() -> TSDecoderConfig:
     window = int(envs["att_window"])
     nhead = int(envs["att_nhead"])

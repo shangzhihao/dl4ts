@@ -104,7 +104,7 @@ class TCN(nn.Module):
         super(TCN, self).__init__()
         channels = conf.channels
         kernel_size = conf.kernel_size
-        dropout = conf.dropuout
+        dropout = conf.dropout
         if channels is None:
             channels = [32, 64, 32]
 
